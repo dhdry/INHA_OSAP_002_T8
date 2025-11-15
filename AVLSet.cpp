@@ -64,8 +64,6 @@ void AVLSet::ResizeHs(Node *x) {
     x->size = 1 + ls + rs;
 }
 
-
-
 AVLSet::Node *AVLSet::FindNode(int x) {
     Node *cur_Node = root;
     while (cur_Node != nullptr) {
@@ -80,6 +78,40 @@ AVLSet::Node *AVLSet::FindNode(int x) {
     }
     return nullptr;
 }
+
+void AVLSet::UpperBound(int x) {
+    Node *cur = root;
+    Node *result_node = nullptr;
+
+    while (cur) {
+        if (cur->key > x) {
+            result_node = cur;
+            cur = cur->left;
+        } else {
+            cur = cur->right;
+        }
+    }
+
+    if (!result_node) {
+        cout << -1 << '\n';
+        return;
+    }
+
+    int depth = 0;
+
+    Node* t = result_node;
+    while (t != nullptr) {
+        if (t->parent != nullptr) {
+            depth++;
+            t = t->parent;
+        } else {
+            break;
+        }
+    }
+
+    cout << result_node->key << ' ' << depth * result_node->height << '\n';
+}
+
 int main(void) {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);

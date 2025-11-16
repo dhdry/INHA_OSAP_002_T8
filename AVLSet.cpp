@@ -304,12 +304,12 @@ void AVLSet::Next(int x) {
     }
     else { // 오른쪽 자식이 없는 경우
         Node* cur_node = x_node;
-        Node* p_node = cur->parent;
-        while (p && p->right == cur) {
+        Node* p_node = cur_node->parent;
+        while (p_node && p_node->right == cur_node) {
             cur_node = p_node;
             p_node = p_node->parent;
         }
-        y_node = p;
+        y_node = p_node;
     }
     // y_node가 없는 경우
     if (y_node == nullptr) {
@@ -319,7 +319,7 @@ void AVLSet::Next(int x) {
 
     // key값과 깊이 * 높이를 공백으로 나눠서 출력
     int depth = 0;
-    for (Node* t = y_node; t && t->parent; t = t->parnt) {
+    for (Node* t = y_node; t && t->parent; t = t->parent) {
         depth++;
     }
 

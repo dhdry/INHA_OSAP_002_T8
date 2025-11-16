@@ -359,6 +359,88 @@ void AVLSet::UpperBound(int x) {
     cout << result_node->key << ' ' << depth * result_node->height << '\n';
 }
 
+void AVLSet::Rank(int x) {
+    Node* current = root; //root부터 내려가며 탐색
+    int rank = 0;
+    int depth = 0;
+
+    while (current != nullptr) {
+        if (x < current->key) {
+            current = current->left;
+            depth++;
+        }
+        else if (x > current->key) {
+            int leftsize = (current->left != nullptr) ? current->left->size : 0; // 왼쪽 서브트리 크기
+            rank += leftsize + 1;      // 왼쪽 + 현재 노드
+            current = current->right;
+            depth++;
+        }
+        else { // x == cur->key (찾음)
+            int leftsize = (current->left != nullptr) ? current->left->size : 0;
+            rank += leftsize + 1;
+            cout << (depth * current->height) << ' ' << rank << '\n';
+            return;
+        }
+    }
+
+    cout << -1 << '\n'; // 못 찾은 경우
+}
+
+
+void AVLSet::Erase(int x) {
+    Node* node = FindNode(x);
+    if (node == nullptr) {
+        cout << -1 << '\n';
+        return;
+    }
+
+
+    int depth = 0;
+    for (Node* t = node; (t != nullptr && t->parent != nullptr); t = t->parent)
+        depth++;
+    cout << depth * node->height << '\n'; //깊이*높이 출력
+
+
+    Node* del = node; //삭제 대상 노드
+
+    if ((node->left != nullptr) && (node->right != nullptr)) { //자식 2개일때
+        Node* successor = node->right;
+        while (successor->left != nullptr)
+            successor = successor->left;
+
+        Node* balancenode = (successor->parent);
+
+        node->key = successor->key;
+        del = successor;
+        delete del;
+        --n_;
+        ReBalance(balancenode);
+    }
+    else { // del이 최대 한 자식(1 또는 0)
+        Node* child = (del->left != nullptr) ? del->left : del->right; 
+        Node* parent = del->parent;
+
+        if (child != nullptr)
+            child->parent = parent;
+        if (parent == nullptr) {
+            root = child;
+        }
+        else if (parent->left == del) {
+            parent->left = child;
+        }
+        else {
+            parent->right = child;
+        }
+
+        delete del;
+        --n_;
+        ReBalance(parent);
+    }
+
+
+
+}
+
 int main(void) {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);

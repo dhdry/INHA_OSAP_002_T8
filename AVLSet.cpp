@@ -183,9 +183,9 @@ void AVLSet::Find(int x) {
             return;
         }
 
-        if (cur_Node->key > x) { // move to left_child
+        if (cur_Node->key > x) { // 왼쪽 자식으로 이동
             cur_Node = cur_Node->left;
-        } else { // move to right_child
+        } else { // 오른쪽 자식으로 이동
             cur_Node = cur_Node->right;
         }
         depth++;

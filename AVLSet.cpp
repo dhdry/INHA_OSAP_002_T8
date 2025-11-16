@@ -298,6 +298,7 @@ void AVLSet::Next(int x) {
     Node* y_node = nullptr;
 
     if (x_node->right) { // 오른쪽 자식이 있는 경우
+        y_node = x_node->right;
         while (y_node->left) {
             y_node = y_node->left;
         }

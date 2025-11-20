@@ -6,9 +6,9 @@
 #include <iostream>
 using namespace std;
 
-class AvlSet {
+class AVLSet {
 public:
-    AvlSet() : root_(nullptr), n_(0) {}
+    AVLSet() : root(nullptr), n_(0) {}
     //기본기능
     void Find(int x);       // set에서 key == x 인 노드를 찾는다
     void Insert(int x);     // set에 존재하지 않는 새로운 키 x를 삽입한다
@@ -24,21 +24,21 @@ public:
 
 private:
     struct Node;
-    Node* root_;
+    Node* root;
     int n_; // set의 크기
 
     // 기본 기능 구현 위한 함수들
     int BalanceDegree(Node* x);   // 균형 깨진 정도 측정
     void ResizeHs(Node* x);       // x노드의 height, size 재측정
 
-    void ReBalance(Node* start_node);  //균형 맞추기
+    void ReBalance(Node* start);  //균형 맞추기
     Node* RotateLeft(Node* x);    //좌측으로 회전
     Node* RotateRight(Node* y);   //우측으로 회전
 
     Node* FindNode(int x);        //노드 반환
 };
 
-struct AvlSet::Node {
+struct AVLSet::Node {
     Node(int k, Node* p = nullptr)
         : key(k), height(1), size(1), left(nullptr), right(nullptr), parent(p) {}
     int key;
@@ -47,29 +47,29 @@ struct AvlSet::Node {
     Node* left, * right, * parent;
 };
 
-int AvlSet::BalanceDegree(Node *x) {
+int AVLSet::BalanceDegree(Node *x) {
     if (!x) {
         return 0;
     }
-    int lh = (x->left) ? x->left->height : 0;
-    int rh = (x->right) ? x->right->height : 0;
+    int lh = x->left ? x->left->height : 0;
+    int rh = x->right ? x->right->height : 0;
     return lh - rh;
 }
 
-void AvlSet::ResizeHs(Node *x) {
+void AVLSet::ResizeHs(Node *x) {
     if (!x) {
         return;
     }
-    int lh = (x->left) ? x->left->height : 0;   // x의 왼쪽 자식 높이
-    int rh = (x->right) ? x->right->height : 0; // x의 오른쪽 자식 높이
-    x->height = 1 + ((lh > rh) ? lh : rh);
+    int lh = x->left ? x->left->height : 0;   // x의 왼쪽 자식 높이
+    int rh = x->right ? x->right->height : 0; // x의 오른쪽 자식 높이
+    x->height = 1 + (lh > rh ? lh : rh);
 
-    int ls = (x->left) ? x->left->size : 0;     // x의 왼쪽 자식 사이즈
-    int rs = (x->right) ? x->right->size : 0;   // x의 오른쪽 자식 사이즈
+    int ls = x->left ? x->left->size : 0;     // x의 왼쪽 자식 사이즈
+    int rs = x->right ? x->right->size : 0;   // x의 오른쪽 자식 사이즈
     x->size = 1 + ls + rs;
 }
 
-AvlSet::Node *AvlSet::RotateLeft(Node *x) {
+AVLSet::Node *AVLSet::RotateLeft(Node *x) {
     if (!x || !x->right) {
         return x;
     }
@@ -89,7 +89,7 @@ AvlSet::Node *AvlSet::RotateLeft(Node *x) {
 
     // x가 x의 부모의 어디에서 왔는지에 따른 재배치
     if (!y->parent)
-        root_ = y;
+        root = y;
     else if (y->parent->left == x) {
         y->parent->left = y;
     } else {
@@ -102,7 +102,7 @@ AvlSet::Node *AvlSet::RotateLeft(Node *x) {
     return y;
 }
 
-AvlSet::Node *AvlSet::RotateRight(Node *y) {
+AVLSet::Node *AVLSet::RotateRight(Node *y) {
     if (!y || !y->left) {
         return y;
     }
@@ -118,7 +118,7 @@ AvlSet::Node *AvlSet::RotateRight(Node *y) {
     y->parent = x;
 
     if (!x->parent)
-        root_ = x;
+        root = x;
     else if (x->parent->left == y) {
         x->parent->left = x;
     } else {
@@ -131,67 +131,67 @@ AvlSet::Node *AvlSet::RotateRight(Node *y) {
     return x;
 }
 
-void AvlSet::ReBalance(Node* start_node) {
-    Node* cur_node = start_node;
+void AVLSet::ReBalance(Node* start) {
+    Node* cur = start;
 
-    while (cur_node) {
+    while (cur) {
         // 현재 노드의 height, size 재측정
-        ResizeHs(cur_node);
+        ResizeHs(cur);
 
-        int balance = BalanceDegree(cur_node);
+        int balance = BalanceDegree(cur);
 
         // 왼쪽으로 기움 : LL or LR
         if (balance == 2) {
             // LR: 왼쪽 자식을 먼저 좌회전
-            if (BalanceDegree(cur_node->left) < 0)
-                RotateLeft(cur_node->left);
+            if (BalanceDegree(cur->left) < 0)
+                RotateLeft(cur->left);
 
-            RotateRight(cur_node);
+            RotateRight(cur);
         }
 
         // 오른쪽으로 기움 : RR or RL
         else if (balance == -2) {
             // RL: 오른쪽 자식을 먼저 우회전
-            if (BalanceDegree(cur_node->right) > 0)
-                RotateRight(cur_node->right);
+            if (BalanceDegree(cur->right) > 0)
+                RotateRight(cur->right);
 
-            RotateLeft(cur_node);
+            RotateLeft(cur);
         }
 
         // 부모로 올라가서 체크
-        cur_node = cur_node->parent;
+        cur = cur->parent;
     }
 }
 
-AvlSet::Node *AvlSet::FindNode(int x) {
-    Node *cur_node = root_;
-    while (cur_node != nullptr) {
-        if (cur_node->key == x) {
-            return cur_node;
+AVLSet::Node *AVLSet::FindNode(int x) {
+    Node *cur_Node = root;
+    while (cur_Node != nullptr) {
+        if (cur_Node->key == x) {
+            return cur_Node;
         }
-        if (cur_node->key > x) { // 왼쪽 자식으로 이동
-            cur_node = cur_node->left;
+        if (cur_Node->key > x) { // 왼쪽 자식으로 이동
+            cur_Node = cur_Node->left;
         } else { // 오른쪽 자식으로 이동
-            cur_node = cur_node->right;
+            cur_Node = cur_Node->right;
         }
     }
     return nullptr;
 }
 
-void AvlSet::Find(int x) {
-    Node *cur_node = root_;
+void AVLSet::Find(int x) {
+    Node *cur_Node = root;
     int depth = 0;
 
-    while (cur_node != nullptr) {
-        if (cur_node->key == x) {
-            cout << depth * cur_node->height << '\n';
+    while (cur_Node != nullptr) {
+        if (cur_Node->key == x) {
+            cout << depth * cur_Node->height << '\n';
             return;
         }
 
-        if (cur_node->key > x) { // 왼쪽 자식으로 이동
-            cur_node = cur_node->left;
+        if (cur_Node->key > x) { // 왼쪽 자식으로 이동
+            cur_Node = cur_Node->left;
         } else {
-            cur_node = cur_node->right;
+            cur_Node = cur_Node->right;
         }
         depth++;
     }
@@ -199,7 +199,7 @@ void AvlSet::Find(int x) {
     cout << -1 << '\n'; // 찾지 못함
 }
 
-void AvlSet::Empty() {
+void AVLSet::Empty() {
     if (n_ == 0) {
         cout << 1 << '\n';
     } else {
@@ -207,22 +207,22 @@ void AvlSet::Empty() {
     }
 }
 
-void AvlSet::Size() {
+void AVLSet::Size() {
     cout << n_ << '\n';
 }
 
-void AvlSet::Insert(int x) {
+void AVLSet::Insert(int x) {
     Node* new_node = new Node(x);
 
-    if (root_ == nullptr) { // 빈 트리일 경우
-        root_ = new_node;
+    if (root == nullptr) { // 빈 트리일 경우
+        root = new_node;
         ++n_;
         cout << 0 << '\n';
         return;
     }
 
     Node* p_node = nullptr;
-    Node* cur_node = root_;
+    Node* cur_node = root;
 
     while (cur_node != nullptr) {
         p_node = cur_node;
@@ -249,7 +249,7 @@ void AvlSet::Insert(int x) {
     ReBalance(p_node);
 
     // 깊이 * 높이 출력
-    Node* result_node = root_;
+    Node* result_node = root;
     int depth = 0;
     while (result_node != nullptr && result_node->key != x) {
         if (result_node->key > x) {
@@ -264,7 +264,7 @@ void AvlSet::Insert(int x) {
     cout << depth * result_node->height << '\n';
 }
 
-void AvlSet::Prev(int x) {
+void AVLSet::Prev(int x) {
     Node* x_node = FindNode(x);
     Node* y_node = nullptr;
 
@@ -298,7 +298,7 @@ void AvlSet::Prev(int x) {
     cout << y_node->key << ' ' << depth * y_node->height << '\n';
 }
 
-void AvlSet::Next(int x) {
+void AVLSet::Next(int x) {
     Node* x_node = FindNode(x);
     Node* y_node = nullptr;
 
@@ -333,16 +333,16 @@ void AvlSet::Next(int x) {
 }
 
 
-void AvlSet::UpperBound(int x) {
-    Node *cur_node = root_;
+void AVLSet::UpperBound(int x) {
+    Node *cur = root;
     Node *result_node = nullptr;
 
-    while (cur_node) {
-        if (cur_node->key > x) {
-            result_node = cur_node;
-            cur_node = cur_node->left;
+    while (cur) {
+        if (cur->key > x) {
+            result_node = cur;
+            cur = cur->left;
         } else {
-            cur_node = cur_node->right;
+            cur = cur->right;
         }
     }
 
@@ -366,8 +366,8 @@ void AvlSet::UpperBound(int x) {
     cout << result_node->key << ' ' << depth * result_node->height << '\n';
 }
 
-void AvlSet::Rank(int x) {
-    Node* current = root_; //root부터 내려가며 탐색
+void AVLSet::Rank(int x) {
+    Node* current = root; //root부터 내려가며 탐색
     int rank = 0;
     int depth = 0;
 
@@ -394,7 +394,7 @@ void AvlSet::Rank(int x) {
 }
 
 
-void AvlSet::Erase(int x) {
+void AVLSet::Erase(int x) {
     Node* node = FindNode(x);
     if (node == nullptr) {
         cout << -1 << '\n';
@@ -430,7 +430,7 @@ void AvlSet::Erase(int x) {
         if (child != nullptr)
             child->parent = parent;
         if (parent == nullptr) {
-            root_ = child;
+            root = child;
         }
         else if (parent->left == del) {
             parent->left = child;
@@ -456,7 +456,7 @@ int main(void) {
     int T;
     cin >> T;
     while (T--) {
-        AvlSet set;
+        AVLSet set;
         string command;
 
         int Q;

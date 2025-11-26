@@ -401,51 +401,47 @@ void AvlSet::Erase(int x) {
         return;
     }
 
-
+    // 노드의 깊이*높이 출력
     int depth = 0;
     for (Node* t = node; (t != nullptr && t->parent != nullptr); t = t->parent)
         depth++;
-    cout << depth * node->height << '\n'; //깊이*높이 출력
+    cout << depth * node->height << '\n';
 
+    Node* delete_target = node; // 실제로 해제될 노드
 
-    Node* del = node; //삭제 대상 노드
-
-    if ((node->left != nullptr) && (node->right != nullptr)) { //자식 2개일때
+    // 자식이 2개인 경우 
+    if (node->left != nullptr && node->right != nullptr) {
         Node* successor = node->right;
-        while (successor->left != nullptr)
+        while (successor->left != nullptr) {
             successor = successor->left;
-
-        Node* balancenode = (successor->parent);
-
-        node->key = successor->key;
-        del = successor;
-        delete del;
-        --n_;
-        ReBalance(balancenode);
-    }
-    else { // del이 최대 한 자식(1 또는 0)
-        Node* child = (del->left != nullptr) ? del->left : del->right;
-        Node* parent = del->parent;
-
-        if (child != nullptr)
-            child->parent = parent;
-        if (parent == nullptr) {
-            root_ = child;
         }
-        else if (parent->left == del) {
-            parent->left = child;
-        }
-        else {
-            parent->right = child;
-        }
-
-        delete del;
-        --n_;
-        ReBalance(parent);
+        
+        node->key = successor->key; // 후임자 값 복사
+        delete_target = successor;  // 삭제할 대상을 후임자로 변경
     }
 
+    // 그 외의 경우(자식이 0개 또는 1개) (Case 1을 거치면 delete_target은 항상 이 상태가 됨)
+    Node* childnode = (delete_target->left != nullptr) ? delete_target->left : delete_target->right;
+    Node* parentnode = delete_target->parent;
 
+    //삭제할 노드의 자식과 부모를 서로 연결
+    if (childnode != nullptr) {
+        childnode->parent = parentnode;
+    }
+    if (parentnode == nullptr) {
+        root_ = childnode; 
+    } else if (parentnode->left == delete_target) {
+        parentnode->left = childnode;
+    } else {
+        parentnode->right = childnode;
+    }
 
+    delete delete_target;
+    n_--;
+
+    if (parentnode != nullptr) {
+        ReBalance(parentnode); //균형 재조정
+    }
 }
 
 int main(void) {
